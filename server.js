@@ -2,7 +2,6 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
-//connection information
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -11,7 +10,6 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
-// this function kicks off the command line application and begins the prompts
 const menu = () => {
   inquirer
     .prompt({
@@ -31,7 +29,6 @@ const menu = () => {
     })
     .then(({ action }) => {
       // console.log(action)
-      //switch case that runs depending on the user's choices selection
       switch (action) {
         case "View All Employees":
           return viewEmployees();
@@ -65,9 +62,11 @@ const viewEmployeesDept = () => {};
 
 const viewEmployeesManager = () => {};
 
+//allows the user to create a new employee
 const addEmployee = () => {
   inquirer
     .prompt([
+      //first name prompt
       {
         name: "first_name",
         type: "input",
@@ -81,6 +80,7 @@ const addEmployee = () => {
           }
         },
       },
+      //last name prompt
       {
         name: "last_name",
         type: "input",
@@ -94,6 +94,7 @@ const addEmployee = () => {
           }
         },
       },
+      //role prompt
       {
         name: "role_id",
         type: "list",
@@ -108,6 +109,7 @@ const addEmployee = () => {
           "Legal Team Lead",
         ],
       },
+      //manager prompt
       {
         name: "manager_id",
         type: "list",
@@ -123,6 +125,7 @@ const addEmployee = () => {
       },
     ])
     .then((answer) => {
+      //these if statements assign an id number to the role that is selected by the user
       if (answer.role_id == "Sales Lead") {
         roleID = 1;
       }
@@ -145,8 +148,7 @@ const addEmployee = () => {
         roleID = 7;
       }
 
-      // console.log(roleID);
-
+      //these if statements assign an id number to the manager that is selected by the user
       if (answer.manager_id == "none") {
         managerID = 1;
       }
@@ -165,9 +167,8 @@ const addEmployee = () => {
       if (answer.manager_id == "Michael Gray") {
         managerID = 6;
       }
-
-      // console.log(managerID);
-
+      
+      //connects to the database and inserts the user's answers into the employee table
       connection.query(
         "INSERT INTO employee SET ?",
         {
@@ -193,7 +194,6 @@ const updateEmployeeRole = () => {};
 
 const updateEmployeeManager = () => {};
 
-//connects to database
 connection.connect((err) => {
   if (err) throw err;
   console.log(`Connected at ${connection.threadId}`);
