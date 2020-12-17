@@ -10,6 +10,7 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+//app start menu
 const menu = () => {
   inquirer
     .prompt({
@@ -18,12 +19,12 @@ const menu = () => {
       name: "action",
       choices: [
         "View All Employees",
-        "View All Employees By Department",
-        "View All Employees By Manager",
+        "View All Departments",
+        "View All Roles",
         "Add Employee",
-        "Remove Employee",
+        "Add Department",
+        "Add Role",
         "Update Employee Role",
-        "Update Employee Manager",
         "Exit",
       ],
     })
@@ -31,18 +32,18 @@ const menu = () => {
       switch (action) {
         case "View All Employees":
           return viewEmployees();
-        case "View All Employees By Department":
-          return viewEmployeesDept();
-        case "View All Employees By Manager":
-          return viewEmployeesManager();
+        case "View All Departments":
+          return viewDepartments();
+        case "View All Roles":
+          return viewRoles();
         case "Add Employee":
           return addEmployee();
-        case "Remove Employee":
-          return removeEmployee();
+        case "Add Department":
+          return addDepartment();
+        case "Add Role":
+          return addRole();
         case "Update Employee Role":
           return updateEmployeeRole();
-        case "Update Employee Manager":
-          return updateEmployeeManager();
         case "Exit":
           connection.end();
       }
@@ -59,9 +60,23 @@ const viewEmployees = () => {
   });
 };
 
-const viewEmployeesDept = () => {};
+//allows the user to view all departments currently in the datable
+const viewDepartments = () => {
+  connection.query("SELECT * FROM department", function (error, res) {
+    if (error) throw err;
+    console.table(res);
+    menu();
+  });
+};
 
-const viewEmployeesManager = () => {};
+//allows the user to view all roles currently in the datable
+const viewRoles = () => {
+  connection.query("SELECT * FROM role", function (error, res) {
+    if (error) throw err;
+    console.table(res);
+    menu();
+  });
+};
 
 //allows the user to create a new employee
 const addEmployee = () => {
@@ -194,11 +209,111 @@ const addEmployee = () => {
     });
 };
 
-const removeEmployee = () => {};
+//allows the user to create a new department
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      //department name prompt
+      {
+        name: "name",
+        type: "input",
+        message: "What is the name of the department?",
+        validate: (name) => {
+          if (name) {
+            return true;
+          } else {
+            console.log("\n Please enter a department name.");
+            return false;
+          }
+        },
+      },
+    ])
+
+    .then((answer) => {
+      connection.query(
+        "INSERT INTO department SET ?",
+        {
+          name: answer.name,
+        },
+        (err) => {
+          if (err) throw err;
+          console.table(`${answer.name} added to the database.`);
+          menu();
+        }
+      );
+    });
+};
+
+//allows the user to create a new role
+const addRole = () => {
+  inquirer
+    .prompt([
+      //title prompt
+      {
+        name: "title",
+        type: "input",
+        message: "What is the title of this role?",
+        validate: (title) => {
+          if (title) {
+            return true;
+          } else {
+            console.log("\n Please enter a title for this role.");
+            return false;
+          }
+        },
+      },
+
+      //salary prompt
+      {
+        name: "salary",
+        type: "input",
+        message: "What is the salary of this role?",
+        validate: (salary) => {
+          if (salary) {
+            return true;
+          } else {
+            console.log("\n Please enter a salary for this role.");
+            return false;
+          }
+        },
+      },
+
+      //department id prompt
+      {
+        name: "dept_id",
+        type: "input",
+        message: "What is the department id for this role?",
+        validate: (dept_id) => {
+          if (dept_id) {
+            return true;
+          } else {
+            console.log("\n Please enter a department id for this role.");
+            return false;
+          }
+        },
+      },
+    ])
+
+    //takes the user's answers and then sends them to the sql database
+    .then((answer) => {
+      //connects to sql database and inserts the user's answers into the role table
+      connection.query(
+        "INSERT INTO role SET ?",
+        {
+          title: answer.title,
+          salary: answer.salary,
+          department_id: answer.dept_id,
+        },
+        (err) => {
+          if (err) throw err;
+          console.table(`${answer.title} added to the database.`);
+          menu();
+        }
+      );
+    });
+};
 
 const updateEmployeeRole = () => {};
-
-const updateEmployeeManager = () => {};
 
 connection.connect((err) => {
   if (err) throw err;
