@@ -28,7 +28,6 @@ const menu = () => {
       ],
     })
     .then(({ action }) => {
-      // console.log(action)
       switch (action) {
         case "View All Employees":
           return viewEmployees();
@@ -127,7 +126,8 @@ const addEmployee = () => {
         ],
       },
     ])
-    //takes the user's answer and then sends them to the database
+
+    //takes the user's answers and then sends them to the sql database
     .then((answer) => {
       //these if statements assign an id number to the role that is selected by the user
       if (answer.role_id == "Sales Lead") {
@@ -172,7 +172,7 @@ const addEmployee = () => {
         managerID = 6;
       }
 
-      //connects to the database and inserts the user's answers into the employee table
+      //connects to sql database and inserts the user's answers into the employee table
       connection.query(
         "INSERT INTO employee SET ?",
         {
