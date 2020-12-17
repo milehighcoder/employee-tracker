@@ -49,10 +49,12 @@ const menu = () => {
     });
 };
 
+//allows the user to view all employees currently in the database
 const viewEmployees = () => {
   connection.query("SELECT * FROM employee", function (error, res) {
     if (error) throw err;
-    console.log(res);
+    //console.table npm displays tables in a nicer format in the console
+    console.table(res);
     menu();
   });
 };
@@ -183,7 +185,7 @@ const addEmployee = () => {
         },
         (err) => {
           if (err) throw err;
-          console.log(
+          console.table(
             `${answer.first_name} ${answer.last_name} added to the database.`
           );
           menu();
