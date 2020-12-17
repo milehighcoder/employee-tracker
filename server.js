@@ -52,7 +52,14 @@ const menu = () => {
 
 //allows the user to view all employees currently in the database
 const viewEmployees = () => {
-  connection.query("SELECT * FROM employee", function (error, res) {
+  const sql =
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
+    //, CONCAT(e.first_name, ' ', e.last_name) as manager
+    " FROM employee" +
+    " inner join role ON (employee.role_id = role.id)" +
+    " inner join department on role.department_id = department.id";
+  //+ " left join employee as e on employee.manager_id = e.id";
+  connection.query(sql, [], function (error, res) {
     if (error) throw err;
     //console.table npm displays tables in a nicer format in the console
     console.table(res);
@@ -71,8 +78,12 @@ const viewDepartments = () => {
 
 //allows the user to view all roles currently in the datable
 const viewRoles = () => {
-  connection.query("SELECT * FROM role", function (error, res) {
-    if (error) throw err;
+  const sql =
+    "SELECT role.id, role.title, role.salary, department.name as department" +
+    " FROM role" +
+    " inner join department ON (role.department_id = department.id)";
+  connection.query(sql, [], function (err, res) {
+    if (err) throw err;
     console.table(res);
     menu();
   });
@@ -118,13 +129,12 @@ const addEmployee = () => {
         type: "list",
         message: "What is the employee's role?",
         choices: [
-          "Sales Lead",
-          "Salesperson",
-          "Lead Engineer",
+          "Sales Associate",
+          "Sales Manager",
           "Software Engineer",
-          "Account Manager",
-          "Accountant",
-          "Legal Team Lead",
+          "Lead Software Engineer",
+          "Director of Operations",
+          "Chief Executive Officer",
         ],
       },
 
@@ -139,7 +149,6 @@ const addEmployee = () => {
           "Arthur Shelby",
           "John Shelby",
           "Poly Gray",
-          "Michael Gray",
         ],
       },
     ])
@@ -147,26 +156,23 @@ const addEmployee = () => {
     //takes the user's answers and then sends them to the sql database
     .then((answer) => {
       //these if statements assign an id number to the role that is selected by the user
-      if (answer.role_id == "Sales Lead") {
+      if (answer.role_id == "Sales Associate") {
         roleID = 1;
       }
-      if (answer.role_id == "Salesperson") {
+      if (answer.role_id == "Sales Manager") {
         roleID = 2;
       }
-      if (answer.role_id == "Lead Engineer") {
+      if (answer.role_id == "Software Engineer") {
         roleID = 3;
       }
-      if (answer.role_id == "Software Engineer") {
+      if (answer.role_id == "Lead Software Engineer") {
         roleID = 4;
       }
-      if (answer.role_id == "Account Manager") {
+      if (answer.role_id == "Director of Operations") {
         roleID = 5;
       }
-      if (answer.role_id == "Accountant") {
+      if (answer.role_id == "Chief Executive Officer") {
         roleID = 6;
-      }
-      if (answer.role_id == "Legal Team Lead") {
-        roleID = 7;
       }
 
       //these if statements assign an id number to the manager that is selected by the user
@@ -184,9 +190,6 @@ const addEmployee = () => {
       }
       if (answer.manager_id == "Poly Gray") {
         managerID = 5;
-      }
-      if (answer.manager_id == "Michael Gray") {
-        managerID = 6;
       }
 
       //connects to sql database and inserts the user's answers into the employee table
@@ -281,28 +284,47 @@ const addRole = () => {
       //department id prompt
       {
         name: "dept_id",
-        type: "input",
-        message: "What is the department id for this role?",
-        validate: (dept_id) => {
-          if (dept_id) {
-            return true;
-          } else {
-            console.log("\n Please enter a department id for this role.");
-            return false;
-          }
-        },
+        type: "list",
+        message: "Which department will this role be in",
+        choices: [
+          "Sales",
+          "Engineering",
+          "Administration",
+          "Accounting",
+          "Marketing",
+          "Human Resources",
+        ],
       },
     ])
 
     //takes the user's answers and then sends them to the sql database
     .then((answer) => {
+      if (answer.dept_id == "Sales") {
+        deptID = 1;
+      }
+      if (answer.dept_id == "Engineering") {
+        deptID = 2;
+      }
+      if (answer.dept_id == "Administration") {
+        deptID = 3;
+      }
+      if (answer.dept_id == "Accounting") {
+        deptID = 4;
+      }
+      if (answer.dept_id == "Marketing") {
+        deptID = 5;
+      }
+      if (answer.dept_id == "Human Resources") {
+        deptID = 6;
+      }
+
       //connects to sql database and inserts the user's answers into the role table
       connection.query(
         "INSERT INTO role SET ?",
         {
           title: answer.title,
           salary: answer.salary,
-          department_id: answer.dept_id,
+          department_id: deptID,
         },
         (err) => {
           if (err) throw err;
@@ -313,7 +335,75 @@ const addRole = () => {
     });
 };
 
-const updateEmployeeRole = () => {};
+const updateEmployeeRole = () => {
+  /*
+  1. Get all employees to show as a menu.
+  2. Select the new role id for the selected employee
+  3. Insert the new role into the database in place of the old role
+  */
+
+  inquirer
+    .prompt([
+      //employee name prompt
+      {
+        name: "employee_name",
+        type: "list",
+        message: "Which employee would you like to update?",
+        choices: [], //create an array outside of this function that collects all the employee last names
+      },
+      //update role prompt
+      {
+        name: "new_role",
+        type: "list",
+        message: "What would you like the selected employee's new role to be?",
+        choices: [
+          "Sales Associate",
+          "Sales Manager",
+          "Software Engineer",
+          "Lead Software Engineer",
+          "Director of Operations",
+          "Chief Executive Officer",
+        ],
+      },
+    ])
+    .then((answer) => {
+      //these if statements assign an id number to the role that is selected by the user
+      if (answer.new_role == "Sales Associate") {
+        roleID = 1;
+      }
+      if (answer.new_role == "Sales Manager") {
+        roleID = 2;
+      }
+      if (answer.new_role == "Software Engineer") {
+        roleID = 3;
+      }
+      if (answer.new_role == "Lead Software Engineer") {
+        roleID = 4;
+      }
+      if (answer.new_role == "Director of Operations") {
+        roleID = 5;
+      }
+      if (answer.new_role == "Chief Executive Officer") {
+        roleID = 6;
+      }
+
+      //connects to sql database and inserts the user's answers into the employee table
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.employee_name,
+          role_id: roleID,
+        },
+        (err) => {
+          if (err) throw err;
+          console.table(
+            `${answer.first_name} ${answer.employee_name} added to the database.`
+          );
+          menu();
+        }
+      );
+    });
+};
 
 connection.connect((err) => {
   if (err) throw err;
