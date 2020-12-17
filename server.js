@@ -123,20 +123,65 @@ const addEmployee = () => {
       },
     ])
     .then((answer) => {
-      connection.query(
-        "INSERT INTO employee SET first_name=?, last_name=?, role_id?, manager_id=?",
-        {
-          first_name: answer.first_name,
-          last_name: answer.last_name,
-          role_id: answer.role_id,
-          manager_id: answer.manager_id,
-        },
-        (err) => {
-          if (err) throw err;
-          console.log(`Added ${first_name} ${last_name} to the database.`);
-          menu();
-        }
-      );
+      if (answer.role_id == "Sales Lead") {
+        roleID = 1;
+      }
+      if (answer.role_id == "Salesperson") {
+        roleID = 2;
+      }
+      if (answer.role_id == "Lead Engineer") {
+        roleID = 3;
+      }
+      if (answer.role_id == "Software Engineer") {
+        roleID = 4;
+      }
+      if (answer.role_id == "Account Manager") {
+        roleID = 5;
+      }
+      if (answer.role_id == "Accountant") {
+        roleID = 6;
+      }
+      if (answer.role_id == "Legal Team Lead") {
+        roleID = 7;
+      }
+
+      console.log(roleID);
+
+      if (answer.manager_id == "none") {
+        managerID = 1;
+      }
+      if (answer.manager_id == "Thomas Shelby") {
+        managerID = 2;
+      }
+      if (answer.manager_id == "Arthur Shelby") {
+        managerID = 3;
+      }
+      if (answer.manager_id == "John Shelby") {
+        managerID = 4;
+      }
+      if (answer.manager_id == "Poly Gray") {
+        managerID = 5;
+      }
+      if (answer.manager_id == "Michael Gray") {
+        managerID = 6;
+      }
+
+      console.log(managerID);
+      
+      // connection.query(
+      //   "INSERT INTO employee SET first_name=?, last_name=?, role_id?, manager_id=?",
+      //   {
+      //     first_name: answer.first_name,
+      //     last_name: answer.last_name,
+      //     role_id: answer.role_id,
+      //     manager_id: answer.manager_id,
+      //   },
+      //   (err) => {
+      //     if (err) throw err;
+      //     console.log(`Added ${first_name} ${last_name} to the database.`);
+      //     menu();
+      //   }
+      // );
     });
 };
 
