@@ -145,7 +145,7 @@ const addEmployee = () => {
         roleID = 7;
       }
 
-      console.log(roleID);
+      // console.log(roleID);
 
       if (answer.manager_id == "none") {
         managerID = 1;
@@ -166,22 +166,22 @@ const addEmployee = () => {
         managerID = 6;
       }
 
-      console.log(managerID);
-      
-      // connection.query(
-      //   "INSERT INTO employee SET first_name=?, last_name=?, role_id?, manager_id=?",
-      //   {
-      //     first_name: answer.first_name,
-      //     last_name: answer.last_name,
-      //     role_id: answer.role_id,
-      //     manager_id: answer.manager_id,
-      //   },
-      //   (err) => {
-      //     if (err) throw err;
-      //     console.log(`Added ${first_name} ${last_name} to the database.`);
-      //     menu();
-      //   }
-      // );
+      // console.log(managerID);
+
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.first_name,
+          last_name: answer.last_name,
+          role_id: roleID,
+          manager_id: managerID,
+        },
+        (err) => {
+          if (err) throw err;
+          console.log("Employee added to the database.");
+          menu();
+        }
+      );
     });
 };
 
