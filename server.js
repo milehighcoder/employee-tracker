@@ -54,7 +54,7 @@ const viewEmployees = () => {
     if (error) throw err;
     console.log(res);
   });
-  connection.end();
+  menu();
 };
 
 const viewEmployeesDept = () => {};
