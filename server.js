@@ -53,7 +53,13 @@ const menu = () => {
     });
 };
 
-const viewEmployees = () => {};
+const viewEmployees = () => {
+  connection.query("SELECT * FROM employee", function (error, res) {
+    if (error) throw err;
+    console.log(res);
+  });
+  connection.end();
+};
 
 const viewEmployeesDept = () => {};
 
@@ -118,7 +124,7 @@ const addEmployee = () => {
     ])
     .then((answer) => {
       connection.query(
-        "INSERT INTO employee SET ?",
+        "INSERT INTO employee SET first_name=?, last_name=?, role_id?, manager_id=?",
         {
           first_name: answer.first_name,
           last_name: answer.last_name,
