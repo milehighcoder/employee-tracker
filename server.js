@@ -53,8 +53,8 @@ const viewEmployees = () => {
   connection.query("SELECT * FROM employee", function (error, res) {
     if (error) throw err;
     console.log(res);
+    menu();
   });
-  menu();
 };
 
 const viewEmployeesDept = () => {};
