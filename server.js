@@ -178,7 +178,9 @@ const addEmployee = () => {
         },
         (err) => {
           if (err) throw err;
-          console.log("Employee added to the database.");
+          console.log(
+            `${answer.first_name} ${answer.last_name} added to the database.`
+          );
           menu();
         }
       );
