@@ -59,15 +59,14 @@ const viewEmployees = () => {
     " inner join role ON (employee.role_id = role.id)" +
     " inner join department on role.department_id = department.id";
   //+ " left join employee as e on employee.manager_id = e.id";
-  connection.query(sql, [], function (error, res) {
-    if (error) throw err;
+  connection.query(sql, [], function (err, res) {
+    if (err) throw err;
     //console.table npm displays tables in a nicer format in the console
     console.table(res);
     menu();
   });
 };
 
-//allows the user to view all departments currently in the datable
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", function (error, res) {
     if (error) throw err;
@@ -76,7 +75,6 @@ const viewDepartments = () => {
   });
 };
 
-//allows the user to view all roles currently in the datable
 const viewRoles = () => {
   const sql =
     "SELECT role.id, role.title, role.salary, department.name as department" +
@@ -89,7 +87,6 @@ const viewRoles = () => {
   });
 };
 
-//allows the user to create a new employee
 const addEmployee = () => {
   inquirer
     .prompt([
@@ -212,7 +209,6 @@ const addEmployee = () => {
     });
 };
 
-//allows the user to create a new department
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -247,7 +243,6 @@ const addDepartment = () => {
     });
 };
 
-//allows the user to create a new role
 const addRole = () => {
   inquirer
     .prompt([
@@ -336,73 +331,79 @@ const addRole = () => {
 };
 
 const updateEmployeeRole = () => {
-  /*
-  1. Get all employees to show as a menu.
-  2. Select the new role id for the selected employee
-  3. Insert the new role into the database in place of the old role
-  */
+  let nameArray = [];
+  // console.log(nameArray);
+  const sql = "SELECT * FROM employee";
 
-  inquirer
-    .prompt([
-      //employee name prompt
-      {
-        name: "employee_name",
-        type: "list",
-        message: "Which employee would you like to update?",
-        choices: [], //create an array outside of this function that collects all the employee last names
-      },
-      //update role prompt
-      {
-        name: "new_role",
-        type: "list",
-        message: "What would you like the selected employee's new role to be?",
-        choices: [
-          "Sales Associate",
-          "Sales Manager",
-          "Software Engineer",
-          "Lead Software Engineer",
-          "Director of Operations",
-          "Chief Executive Officer",
-        ],
-      },
-    ])
-    .then((answer) => {
-      //these if statements assign an id number to the role that is selected by the user
-      if (answer.new_role == "Sales Associate") {
-        roleID = 1;
-      }
-      if (answer.new_role == "Sales Manager") {
-        roleID = 2;
-      }
-      if (answer.new_role == "Software Engineer") {
-        roleID = 3;
-      }
-      if (answer.new_role == "Lead Software Engineer") {
-        roleID = 4;
-      }
-      if (answer.new_role == "Director of Operations") {
-        roleID = 5;
-      }
-      if (answer.new_role == "Chief Executive Officer") {
-        roleID = 6;
-      }
-
-      //connects to sql database and inserts the user's answers into the employee table
-      connection.query(
-        "INSERT INTO employee SET ?",
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    nameArray = res;
+    // console.log(nameArray)
+    let lastNameChoice = nameArray.map(
+      (user) => user.first_name + " " + user.last_name
+    );
+    console.log(lastNameChoice);
+    inquirer
+      .prompt([
+        //employee name prompt
         {
-          first_name: answer.employee_name,
-          role_id: roleID,
+          name: "employee_name",
+          type: "list",
+          message: "Which employee would you like to update?",
+          choices: lastNameChoice, //create an array outside of this function that collects all the employee last names
         },
-        (err) => {
-          if (err) throw err;
-          console.table(
-            `${answer.first_name} ${answer.employee_name} added to the database.`
-          );
-          menu();
+        //update role prompt
+        {
+          name: "new_role",
+          type: "list",
+          message:
+            "What would you like the selected employee's new role to be?",
+          choices: [
+            "Sales Associate",
+            "Sales Manager",
+            "Software Engineer",
+            "Lead Software Engineer",
+            "Director of Operations",
+            "Chief Executive Officer",
+          ],
+        },
+      ])
+      .then((answer) => {
+        // these if statements assign an id number to the role that is selected by the user
+        if (answer.new_role == "Sales Associate") {
+          roleID = 1;
         }
-      );
-    });
+        if (answer.new_role == "Sales Manager") {
+          roleID = 2;
+        }
+        if (answer.new_role == "Software Engineer") {
+          roleID = 3;
+        }
+        if (answer.new_role == "Lead Software Engineer") {
+          roleID = 4;
+        }
+        if (answer.new_role == "Director of Operations") {
+          roleID = 5;
+        }
+        if (answer.new_role == "Chief Executive Officer") {
+          roleID = 6;
+        }
+        const result = answer.employee_name;
+        const employeeId = nameArray.filter(
+          (user) => user.first_name + " " + user.last_name === result
+        );
+        console.log(employeeId);
+        console.log(roleID, result);
+      });
+
+    // //connects to sql database and inserts the user's answers into the employee table
+    // connection.query('UPDATE employee SET employee.role_id = ? WHERE id = ?', function (err, res) {
+    //   if (err) throw err;
+    //   console.table(res);
+    //   menu();
+    // });
+    // });
+  });
 };
 
 connection.connect((err) => {
@@ -410,3 +411,36 @@ connection.connect((err) => {
   console.log(`Connected at ${connection.threadId}`);
   menu();
 });
+
+// -------------------------------
+
+const updateEmpl = () => {
+  const emplView = connection.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+  });
+  const emplChoices = emplView.map(({ id, first_name, last_name }) => ({
+    value: id,
+    name: `${first_name} ${last_name}`,
+  }));
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employeeId",
+        message: "Which employee's ID do you want to update?",
+        choices: emplChoices,
+      },
+    ])
+    .then((data) => {
+      const query = connection.query(
+        "UPDATE employee SET id = ? WHERE id = ?",
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} information updated!`);
+        }
+      );
+    });
+};
+
+
