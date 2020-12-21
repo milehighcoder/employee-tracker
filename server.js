@@ -331,18 +331,25 @@ const addRole = () => {
 };
 
 const updateEmployeeRole = () => {
-  let nameArray = [];
-  // console.log(nameArray);
-  const sql = "SELECT * FROM employee";
+  let empArray = [];
+  let roleArray = [];
+
+  const sql =
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
+    " FROM employee" +
+    " inner join role ON (employee.role_id = role.id)" +
+    " inner join department on role.department_id = department.id";
+
+  const sql2 = "SELECT role.title FROM role";
 
   connection.query(sql, function (err, res) {
     if (err) throw err;
-    nameArray = res;
-    // console.log(nameArray)
-    let lastNameChoice = nameArray.map(
+    empArray = res;
+    console.table(res);
+    let empNames = empArray.map(
       (user) => user.first_name + " " + user.last_name
     );
-    console.log(lastNameChoice);
+
     inquirer
       .prompt([
         //employee name prompt
@@ -350,50 +357,32 @@ const updateEmployeeRole = () => {
           name: "employee_name",
           type: "list",
           message: "Which employee would you like to update?",
-          choices: lastNameChoice, //create an array outside of this function that collects all the employee last names
-        },
-        //update role prompt
-        {
-          name: "new_role",
-          type: "list",
-          message:
-            "What would you like the selected employee's new role to be?",
-          choices: [
-            "Sales Associate",
-            "Sales Manager",
-            "Software Engineer",
-            "Lead Software Engineer",
-            "Director of Operations",
-            "Chief Executive Officer",
-          ],
+          choices: empNames,
         },
       ])
       .then((answer) => {
-        // these if statements assign an id number to the role that is selected by the user
-        if (answer.new_role == "Sales Associate") {
-          roleID = 1;
-        }
-        if (answer.new_role == "Sales Manager") {
-          roleID = 2;
-        }
-        if (answer.new_role == "Software Engineer") {
-          roleID = 3;
-        }
-        if (answer.new_role == "Lead Software Engineer") {
-          roleID = 4;
-        }
-        if (answer.new_role == "Director of Operations") {
-          roleID = 5;
-        }
-        if (answer.new_role == "Chief Executive Officer") {
-          roleID = 6;
-        }
-        const result = answer.employee_name;
-        const employeeId = nameArray.filter(
-          (user) => user.first_name + " " + user.last_name === result
-        );
-        console.log(employeeId);
-        console.log(roleID, result);
+        connection.query(sql2, function (err, res) {
+          let result = answer.employee_name;
+          if (err) throw err;
+          roleArray = res;
+          let roleList = roleArray.map((roles) => roles.title);
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                message: "What would you like to change their role to?",
+                name: "newEmpRole",
+                choices: roleList,
+              },
+            ])
+            .then((answer) => {
+              // const employeeId = empArray.filter(
+              //   (user) => user.first_name + " " + user.last_name === result
+              // );
+              console.log(result);
+              console.log(answer.newEmpRole);
+            });
+        });
       });
 
     // //connects to sql database and inserts the user's answers into the employee table
@@ -411,36 +400,3 @@ connection.connect((err) => {
   console.log(`Connected at ${connection.threadId}`);
   menu();
 });
-
-// -------------------------------
-
-const updateEmpl = () => {
-  const emplView = connection.query("SELECT * FROM employee", (err, res) => {
-    if (err) throw err;
-    console.table(res);
-  });
-  const emplChoices = emplView.map(({ id, first_name, last_name }) => ({
-    value: id,
-    name: `${first_name} ${last_name}`,
-  }));
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "employeeId",
-        message: "Which employee's ID do you want to update?",
-        choices: emplChoices,
-      },
-    ])
-    .then((data) => {
-      const query = connection.query(
-        "UPDATE employee SET id = ? WHERE id = ?",
-        (err, res) => {
-          if (err) throw err;
-          console.log(`${res.affectedRows} information updated!`);
-        }
-      );
-    });
-};
-
-
