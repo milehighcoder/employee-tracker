@@ -34,6 +34,8 @@ As a business owner, I want to view, add, and update employee roles in my compan
 * Inquirer.js
 * MySQL
 
+https://www.loom.com/share/ecbda0728b584506bb363d675c401dca
+
 ## Contributing
 
 Please ensure that your pull request adheres to the following guidelines:
