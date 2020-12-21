@@ -340,14 +340,14 @@ const updateEmployeeRole = () => {
     " inner join role ON (employee.role_id = role.id)" +
     " inner join department on role.department_id = department.id";
 
-  const sql2 = "SELECT role.title FROM role";
+  const sql2 = "SELECT role.title, role.id FROM role";
 
   connection.query(sql, function (err, res) {
     if (err) throw err;
     empArray = res;
     console.table(res);
     let empNames = empArray.map(
-      (user) => user.first_name + " " + user.last_name
+      (user) => user.id + " " + user.first_name + " " + user.last_name
     );
 
     inquirer
@@ -362,10 +362,11 @@ const updateEmployeeRole = () => {
       ])
       .then((answer) => {
         connection.query(sql2, function (err, res) {
-          let result = answer.employee_name;
+          let result = JSON.stringify(answer.employee_name);
+          let resultId = result.replace(/\D/g, "");
           if (err) throw err;
           roleArray = res;
-          let roleList = roleArray.map((roles) => roles.title);
+          let roleList = roleArray.map((roles) => roles.id + " " + roles.title);
           inquirer
             .prompt([
               {
@@ -376,22 +377,30 @@ const updateEmployeeRole = () => {
               },
             ])
             .then((answer) => {
-              // const employeeId = empArray.filter(
-              //   (user) => user.first_name + " " + user.last_name === result
-              // );
-              console.log(result);
-              console.log(answer.newEmpRole);
+              let role = JSON.stringify(answer.newEmpRole);
+              let newRole = role.replace(/\D/g, "");
+              connection.query(
+                `UPDATE employee SET role_id = ${newRole} WHERE id = ${resultId}`,
+                function (err, res) {
+                  if (err) throw err;
+                }
+              );
+
+              const sql =
+                "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
+                " FROM employee" +
+                " inner join role ON (employee.role_id = role.id)" +
+                " inner join department on role.department_id = department.id";
+              connection.query(sql, [], function (err, res) {
+                if (err) throw err;
+                //console.table npm displays tables in a nicer format in the console
+                console.table(res);
+                console.log("Employee has been successfully updated.");
+                menu();
+              });
             });
         });
       });
-
-    // //connects to sql database and inserts the user's answers into the employee table
-    // connection.query('UPDATE employee SET employee.role_id = ? WHERE id = ?', function (err, res) {
-    //   if (err) throw err;
-    //   console.table(res);
-    //   menu();
-    // });
-    // });
   });
 };
 
