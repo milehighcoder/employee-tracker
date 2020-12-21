@@ -362,6 +362,7 @@ const updateEmployeeRole = () => {
       ])
       .then((answer) => {
         connection.query(sql2, function (err, res) {
+          let nameSuccess = answer.employee_name;
           let result = JSON.stringify(answer.employee_name);
           let resultId = result.replace(/\D/g, "");
           if (err) throw err;
@@ -393,9 +394,8 @@ const updateEmployeeRole = () => {
                 " inner join department on role.department_id = department.id";
               connection.query(sql, [], function (err, res) {
                 if (err) throw err;
-                //console.table npm displays tables in a nicer format in the console
                 console.table(res);
-                console.log("Employee has been successfully updated.");
+                console.log(`${nameSuccess} has been updated.`);
                 menu();
               });
             });
