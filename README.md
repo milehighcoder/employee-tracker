@@ -16,8 +16,6 @@ Developers are often tasked with creating interfaces that make it easy for non-d
 
 ## Installation
 
-## Installation
-
 * Step 1: Install [Node.js](https://nodejs.org/).
 * Step 2: Clone this repository to your local drive.
 * Step 3: Open Git Bash (PC) or Terminal (Mac) and navigate to the root directory of this cloned repository.
