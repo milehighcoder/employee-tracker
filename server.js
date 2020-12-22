@@ -24,6 +24,7 @@ const menu = () => {
         "Add Employee",
         "Add Department",
         "Add Role",
+        "Delete Employee",
         "Update Employee Role",
         "Exit",
       ],
@@ -42,6 +43,8 @@ const menu = () => {
           return addDepartment();
         case "Add Role":
           return addRole();
+        case "Delete Employee":
+          return deleteEmployee();
         case "Update Employee Role":
           return updateEmployeeRole();
         case "Exit":
@@ -328,6 +331,44 @@ const addRole = () => {
         }
       );
     });
+};
+
+const deleteEmployee = () => {
+  let empArray = [];
+  const sql =
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
+    " FROM employee" +
+    " inner join role ON (employee.role_id = role.id)" +
+    " inner join department on role.department_id = department.id";
+
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    empArray = res;
+    console.table(res);
+    let empNames = empArray.map(
+      (user) => user.id + " " + user.first_name + " " + user.last_name
+    );
+
+    inquirer
+      .prompt([
+        //employee name prompt
+        {
+          name: "employee_delete",
+          type: "list",
+          message: "Which employee would you like to delete?",
+          choices: empNames,
+        },
+      ])
+      .then((answer) => {
+        let result = JSON.stringify(answer.employee_delete);
+        let resultId = result.replace(/\D/g, "");
+        connection.query(`DELETE FROM employee WHERE id=${resultId}`, (err) => {
+          if (err) throw err;
+          console.log(`${answer.employee_delete} has been deleted.`);
+          menu();
+        });
+      });
+  });
 };
 
 const updateEmployeeRole = () => {
