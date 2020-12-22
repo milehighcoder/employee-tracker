@@ -5,8 +5,8 @@ const cTable = require("console.table");
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-  user: "",
-  password: "",
+  user: "root",
+  password: "RebelUnlv15*",
   database: "employee_trackerDB",
 });
 
@@ -26,6 +26,7 @@ const menu = () => {
         "Add Role",
         "Delete Employee",
         "Delete Department",
+        "Delete Role",
         "Update Employee Role",
         "Exit",
       ],
@@ -48,6 +49,8 @@ const menu = () => {
           return deleteEmployee();
         case "Delete Department":
           return deleteDepartment();
+        case "Delete Role":
+          return deleteRole();
         case "Update Employee Role":
           return updateEmployeeRole();
         case "Exit":
@@ -403,6 +406,39 @@ const deleteDepartment = () => {
             menu();
           }
         );
+      });
+  });
+};
+
+const deleteRole = () => {
+  let roleArray = [];
+  const sql =
+    "SELECT role.id, role.title, role.department_id, department.name as department, role.salary" +
+    " FROM role" +
+    " inner join department on role.department_id = department.id";
+
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    roleArray = res;
+    let roleNames = roleArray.map((user) => user.id + " " + user.title + " ");
+
+    inquirer
+      .prompt([
+        {
+          name: "role_delete",
+          type: "list",
+          message: "Which role would you like to delete?",
+          choices: roleNames,
+        },
+      ])
+      .then((answer) => {
+        let result = JSON.stringify(answer.role_delete);
+        let resultId = result.replace(/\D/g, "");
+        connection.query(`DELETE FROM role WHERE id=${resultId}`, (err) => {
+          if (err) throw err;
+          console.log(`${answer.role_delete} has been deleted.`);
+          menu();
+        });
       });
   });
 };
