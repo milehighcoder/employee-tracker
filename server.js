@@ -25,6 +25,7 @@ const menu = () => {
         "Add Department",
         "Add Role",
         "Delete Employee",
+        "Delete Department",
         "Update Employee Role",
         "Exit",
       ],
@@ -45,6 +46,8 @@ const menu = () => {
           return addRole();
         case "Delete Employee":
           return deleteEmployee();
+        case "Delete Department":
+          return deleteDepartment();
         case "Update Employee Role":
           return updateEmployeeRole();
         case "Exit":
@@ -367,6 +370,39 @@ const deleteEmployee = () => {
           console.log(`${answer.employee_delete} has been deleted.`);
           menu();
         });
+      });
+  });
+};
+
+const deleteDepartment = () => {
+  let depArray = [];
+  const sql = "SELECT * FROM department";
+
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    depArray = res;
+    let depNames = depArray.map((user) => user.id + " " + user.name);
+
+    inquirer
+      .prompt([
+        {
+          name: "department_delete",
+          type: "list",
+          message: "Which department would you like to delete?",
+          choices: depNames,
+        },
+      ])
+      .then((answer) => {
+        let result = JSON.stringify(answer.department_delete);
+        let resultId = result.replace(/\D/g, "");
+        connection.query(
+          `DELETE FROM department WHERE id=${resultId}`,
+          (err) => {
+            if (err) throw err;
+            console.log(`${answer.department_delete} has been deleted.`);
+            menu();
+          }
+        );
       });
   });
 };

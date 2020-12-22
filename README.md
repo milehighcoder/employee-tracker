@@ -27,7 +27,7 @@ Developers are often tasked with creating interfaces that make it easy for non-d
 
 ![alttext](assets/screenshot.png "Application Screenshot")
 
-As a business owner, I want to view, add, and update employee roles in my company so that I can organize and plan my business. This application uses the following technologies:
+As a business owner, I want to view, add, delete, and update information for my company so that I can organize and plan my business. This application uses the following technologies:
 
 * JavaScript
 * Node.js
