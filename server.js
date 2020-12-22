@@ -5,12 +5,11 @@ const cTable = require("console.table");
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-  user: "root",
-  password: "RebelUnlv15*",
+  user: "",
+  password: "",
   database: "employee_trackerDB",
 });
 
-//app start menu
 const menu = () => {
   inquirer
     .prompt({
@@ -59,7 +58,6 @@ const menu = () => {
     });
 };
 
-//allows the user to view all employees currently in the database
 const viewEmployees = () => {
   const sql =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
