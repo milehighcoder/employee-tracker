@@ -2,12 +2,12 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
-//Connection credentials for SQL
+//Authentication for SQL
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-  user: "",
-  password: "",
+  user: "root",
+  password: "RebelUnlv15*",
   database: "employee_trackerDB",
 });
 
@@ -258,85 +258,81 @@ const addDepartment = () => {
 
 //Add a Role
 const addRole = () => {
-  inquirer
-    .prompt([
-      {
-        name: "title",
-        type: "input",
-        message: "What is the title of this role?",
-        validate: (title) => {
-          if (title) {
-            return true;
-          } else {
-            console.log("\n Please enter a title for this role.");
-            return false;
-          }
-        },
-      },
+  const roleTable =
+    "SELECT role.id, role.title, department.name as department, role.salary" +
+    " FROM role" +
+    " inner join department on role.department_id = department.id";
 
-      {
-        name: "salary",
-        type: "input",
-        message: "What is the salary of this role?",
-        validate: (salary) => {
-          if (salary) {
-            return true;
-          } else {
-            console.log("\n Please enter a salary for this role.");
-            return false;
-          }
-        },
-      },
+  //Displays a table of the current Roles
+  connection.query(roleTable, function (err, res) {
+    if (err) throw err;
+    console.table(res);
+  });
 
-      {
-        name: "dept_id",
-        type: "list",
-        message: "Which department will this role be in",
-        choices: [
-          "Sales",
-          "Engineering",
-          "Administration",
-          "Accounting",
-          "Marketing",
-          "Human Resources",
-        ],
-      },
-    ])
+  let depArray = [];
+  const sql = "SELECT * FROM department";
 
-    .then((answer) => {
-      if (answer.dept_id == "Sales") {
-        deptID = 1;
-      }
-      if (answer.dept_id == "Engineering") {
-        deptID = 2;
-      }
-      if (answer.dept_id == "Administration") {
-        deptID = 3;
-      }
-      if (answer.dept_id == "Accounting") {
-        deptID = 4;
-      }
-      if (answer.dept_id == "Marketing") {
-        deptID = 5;
-      }
-      if (answer.dept_id == "Human Resources") {
-        deptID = 6;
-      }
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    depArray = res;
+    let depNames = depArray.map((user) => user.id + " " + user.name);
 
-      connection.query(
-        "INSERT INTO role SET ?",
+    inquirer
+      .prompt([
         {
-          title: answer.title,
-          salary: answer.salary,
-          department_id: deptID,
+          name: "title",
+          type: "input",
+          message: "What is the title of the new role?",
+          validate: (title) => {
+            if (title) {
+              return true;
+            } else {
+              console.log("\n Please enter a title for this role.");
+              return false;
+            }
+          },
         },
-        (err) => {
-          if (err) throw err;
-          console.table(`${answer.title} added to the database.`);
-          menu();
-        }
-      );
-    });
+
+        {
+          name: "salary",
+          type: "input",
+          message: "What is the salary of this role?",
+          validate: (salary) => {
+            if (salary) {
+              return true;
+            } else {
+              console.log("\n Please enter a salary for this role.");
+              return false;
+            }
+          },
+        },
+
+        {
+          name: "dept_id",
+          type: "list",
+          message: "Which department will this role be in",
+          choices: depNames,
+        },
+      ])
+
+      .then((answer) => {
+        let result = JSON.stringify(answer.dept_id);
+        let resultId = result.replace(/\D/g, "");
+        connection.query(
+          "INSERT INTO role SET ?",
+          {
+            title: answer.title,
+            salary: answer.salary,
+            department_id: resultId,
+          },
+          (err) => {
+            if (err) throw err;
+            console.table(`${answer.title} added to the database.`);
+            menu();
+          }
+        );
+      });
+  });
 };
 
 //Delete an employee
