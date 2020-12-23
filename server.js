@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 
+//Connection credentials for SQL
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -10,6 +11,7 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+//Main menu prompt when application is invoked
 const menu = () => {
   inquirer
     .prompt({
@@ -58,6 +60,7 @@ const menu = () => {
     });
 };
 
+//View all current Employees
 const viewEmployees = () => {
   const sql =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
@@ -74,6 +77,7 @@ const viewEmployees = () => {
   });
 };
 
+//View all current Departments
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", function (error, res) {
     if (error) throw err;
@@ -82,6 +86,7 @@ const viewDepartments = () => {
   });
 };
 
+//View all current Roles
 const viewRoles = () => {
   const sql =
     "SELECT role.id, role.title, role.salary, department.name as department" +
@@ -94,11 +99,12 @@ const viewRoles = () => {
   });
 };
 
+//Add an Employee
 const addEmployee = () => {
   inquirer
     .prompt([
-      //first name prompt
       {
+        //first name prompt
         name: "first_name",
         type: "input",
         message: "What is the employee's first name?",
@@ -216,10 +222,10 @@ const addEmployee = () => {
     });
 };
 
+//Add a Department
 const addDepartment = () => {
   inquirer
     .prompt([
-      //department name prompt
       {
         name: "name",
         type: "input",
@@ -250,10 +256,10 @@ const addDepartment = () => {
     });
 };
 
+//Add a Role
 const addRole = () => {
   inquirer
     .prompt([
-      //title prompt
       {
         name: "title",
         type: "input",
@@ -268,7 +274,6 @@ const addRole = () => {
         },
       },
 
-      //salary prompt
       {
         name: "salary",
         type: "input",
@@ -283,7 +288,6 @@ const addRole = () => {
         },
       },
 
-      //department id prompt
       {
         name: "dept_id",
         type: "list",
@@ -299,7 +303,6 @@ const addRole = () => {
       },
     ])
 
-    //takes the user's answers and then sends them to the sql database
     .then((answer) => {
       if (answer.dept_id == "Sales") {
         deptID = 1;
@@ -320,7 +323,6 @@ const addRole = () => {
         deptID = 6;
       }
 
-      //connects to sql database and inserts the user's answers into the role table
       connection.query(
         "INSERT INTO role SET ?",
         {
@@ -337,6 +339,7 @@ const addRole = () => {
     });
 };
 
+//Delete an employee
 const deleteEmployee = () => {
   let empArray = [];
   const sql =
@@ -355,7 +358,6 @@ const deleteEmployee = () => {
 
     inquirer
       .prompt([
-        //employee name prompt
         {
           name: "employee_delete",
           type: "list",
@@ -375,6 +377,7 @@ const deleteEmployee = () => {
   });
 };
 
+//Delete a Department
 const deleteDepartment = () => {
   let depArray = [];
   const sql = "SELECT * FROM department";
@@ -408,6 +411,7 @@ const deleteDepartment = () => {
   });
 };
 
+//Delete a Role
 const deleteRole = () => {
   let roleArray = [];
   const sql =
@@ -441,6 +445,7 @@ const deleteRole = () => {
   });
 };
 
+//Update an Employee's Role
 const updateEmployeeRole = () => {
   let empArray = [];
   let roleArray = [];
@@ -463,7 +468,6 @@ const updateEmployeeRole = () => {
 
     inquirer
       .prompt([
-        //employee name prompt
         {
           name: "employee_name",
           type: "list",
@@ -515,6 +519,7 @@ const updateEmployeeRole = () => {
   });
 };
 
+//Connects SQL database
 connection.connect((err) => {
   if (err) throw err;
   console.log(`Connected at ${connection.threadId}`);
