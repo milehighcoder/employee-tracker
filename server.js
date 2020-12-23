@@ -64,14 +64,11 @@ const menu = () => {
 const viewEmployees = () => {
   const sql =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
-    //, CONCAT(e.first_name, ' ', e.last_name) as manager
     " FROM employee" +
     " inner join role ON (employee.role_id = role.id)" +
     " inner join department on role.department_id = department.id";
-  //+ " left join employee as e on employee.manager_id = e.id";
   connection.query(sql, [], function (err, res) {
     if (err) throw err;
-    //console.table npm displays tables in a nicer format in the console
     console.table(res);
     menu();
   });
@@ -101,125 +98,104 @@ const viewRoles = () => {
 
 //Add an Employee
 const addEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        //first name prompt
-        name: "first_name",
-        type: "input",
-        message: "What is the employee's first name?",
-        validate: (first_name) => {
-          if (first_name) {
-            return true;
-          } else {
-            console.log("\n Please enter a first name.");
-            return false;
-          }
-        },
-      },
+  let roleArray = [];
+  const sql = "SELECT * FROM role";
 
-      //last name prompt
-      {
-        name: "last_name",
-        type: "input",
-        message: "What is the employee's last name?",
-        validate: (last_name) => {
-          if (last_name) {
-            return true;
-          } else {
-            console.log("\n Please enter a last name.");
-            return false;
-          }
-        },
-      },
+  connection.query(sql, function (err, res) {
+    if (err) throw err;
+    roleArray = res;
+    let roleNames = roleArray.map((user) => user.id + " " + user.title);
 
-      //role prompt
-      {
-        name: "role_id",
-        type: "list",
-        message: "What is the employee's role?",
-        choices: [
-          "Sales Associate",
-          "Sales Manager",
-          "Software Engineer",
-          "Lead Software Engineer",
-          "Director of Operations",
-          "Chief Executive Officer",
-        ],
-      },
-
-      //manager prompt
-      {
-        name: "manager_id",
-        type: "list",
-        message: "Who is the employee's manager?",
-        choices: [
-          "None",
-          "Thomas Shelby",
-          "Arthur Shelby",
-          "John Shelby",
-          "Poly Gray",
-        ],
-      },
-    ])
-
-    //takes the user's answers and then sends them to the sql database
-    .then((answer) => {
-      //these if statements assign an id number to the role that is selected by the user
-      if (answer.role_id == "Sales Associate") {
-        roleID = 1;
-      }
-      if (answer.role_id == "Sales Manager") {
-        roleID = 2;
-      }
-      if (answer.role_id == "Software Engineer") {
-        roleID = 3;
-      }
-      if (answer.role_id == "Lead Software Engineer") {
-        roleID = 4;
-      }
-      if (answer.role_id == "Director of Operations") {
-        roleID = 5;
-      }
-      if (answer.role_id == "Chief Executive Officer") {
-        roleID = 6;
-      }
-
-      //these if statements assign an id number to the manager that is selected by the user
-      if (answer.manager_id == "none") {
-        managerID = 1;
-      }
-      if (answer.manager_id == "Thomas Shelby") {
-        managerID = 2;
-      }
-      if (answer.manager_id == "Arthur Shelby") {
-        managerID = 3;
-      }
-      if (answer.manager_id == "John Shelby") {
-        managerID = 4;
-      }
-      if (answer.manager_id == "Poly Gray") {
-        managerID = 5;
-      }
-
-      //connects to sql database and inserts the user's answers into the employee table
-      connection.query(
-        "INSERT INTO employee SET ?",
+    inquirer
+      .prompt([
         {
-          first_name: answer.first_name,
-          last_name: answer.last_name,
-          role_id: roleID,
-          manager_id: managerID,
+          name: "first_name",
+          type: "input",
+          message: "What is the employee's first name?",
+          validate: (first_name) => {
+            if (first_name) {
+              return true;
+            } else {
+              console.log("\n Please enter a first name.");
+              return false;
+            }
+          },
         },
-        (err) => {
-          if (err) throw err;
-          console.table(
-            `${answer.first_name} ${answer.last_name} added to the database.`
-          );
-          menu();
+
+        {
+          name: "last_name",
+          type: "input",
+          message: "What is the employee's last name?",
+          validate: (last_name) => {
+            if (last_name) {
+              return true;
+            } else {
+              console.log("\n Please enter a last name.");
+              return false;
+            }
+          },
+        },
+
+        {
+          name: "role_id",
+          type: "list",
+          message: "What is the employee's role?",
+          choices: roleNames,
+        },
+
+        {
+          name: "manager_id",
+          type: "list",
+          message: "Who is the employee's manager?",
+          choices: [
+            "None",
+            "Thomas Shelby",
+            "Arthur Shelby",
+            "John Shelby",
+            "Poly Gray",
+          ],
+        },
+      ])
+
+      .then((answer) => {
+        //these if statements assign an id number to the manager that is selected by the user
+        if (answer.manager_id == "none") {
+          managerID = 1;
         }
-      );
-    });
+        if (answer.manager_id == "Thomas Shelby") {
+          managerID = 2;
+        }
+        if (answer.manager_id == "Arthur Shelby") {
+          managerID = 3;
+        }
+        if (answer.manager_id == "John Shelby") {
+          managerID = 4;
+        }
+        if (answer.manager_id == "Poly Gray") {
+          managerID = 5;
+        }
+
+        let result = JSON.stringify(answer.role_id);
+        let resultId = result.replace(/\D/g, "");
+
+        connection.query(
+          "INSERT INTO employee SET ?",
+          {
+            first_name: answer.first_name,
+            last_name: answer.last_name,
+            role_id: resultId,
+            manager_id: managerID,
+          },
+          (err) => {
+            if (err) throw err;
+            console.table(
+              `${answer.first_name} ${answer.last_name} added to the database.`
+            );
+            menu();
+          }
+        );
+      });
+  });
 };
 
 //Add a Department
