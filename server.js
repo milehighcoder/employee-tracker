@@ -1,6 +1,29 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+const logo = require("asciiart-logo");
+const chalk = require("chalk");
+
+//Application art logo
+console.log(
+  logo({
+    name: "Employee Tracker",
+    font: "ANSI SHADOW",
+    lines: 8,
+    padding: 2,
+    margin: 2,
+    borderColor: "cyan",
+    logoColor: "cyan",
+    textColor: "white",
+  })
+    .emptyLine()
+    .right("version 1.0.00")
+    .emptyLine()
+    .center(
+      "A command-line application that allows businesses to efficiently organize their employees, departments, roles, and managers seamlessly in an SQL database powered by JavaScript."
+    )
+    .render()
+);
 
 //Authentication for SQL
 const connection = mysql.createConnection({
@@ -62,6 +85,7 @@ const menu = () => {
 
 //View all current Employees
 const viewEmployees = () => {
+  console.clear();
   const sql =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
     " FROM employee" +
@@ -69,35 +93,71 @@ const viewEmployees = () => {
     " inner join department on role.department_id = department.id";
   connection.query(sql, [], function (err, res) {
     if (err) throw err;
+    console.log("\n");
     console.table(res);
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------\n"
+      )
+    );
     menu();
   });
 };
 
 //View all current Departments
 const viewDepartments = () => {
+  console.clear();
   connection.query("SELECT * FROM department", function (error, res) {
     if (error) throw err;
+    console.log("\n");
     console.table(res);
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------\n"
+      )
+    );
     menu();
   });
 };
 
 //View all current Roles
 const viewRoles = () => {
+  console.clear();
   const sql =
     "SELECT role.id, role.title, role.salary, department.name as department" +
     " FROM role" +
     " inner join department ON (role.department_id = department.id)";
   connection.query(sql, [], function (err, res) {
     if (err) throw err;
+    console.log("\n");
     console.table(res);
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log(
+      chalk.cyan(
+        "-----------------------------------------------------------------------------\n"
+      )
+    );
     menu();
   });
 };
 
 //Add an Employee
 const addEmployee = () => {
+  console.clear();
   let roleArray = [];
   const sql = "SELECT * FROM role";
 
@@ -200,6 +260,7 @@ const addEmployee = () => {
 
 //Add a Department
 const addDepartment = () => {
+  console.clear();
   inquirer
     .prompt([
       {
@@ -234,6 +295,7 @@ const addDepartment = () => {
 
 //Add a Role
 const addRole = () => {
+  console.clear();
   const roleTable =
     "SELECT role.id, role.title, department.name as department, role.salary" +
     " FROM role" +
@@ -242,7 +304,6 @@ const addRole = () => {
   //Displays a table of the current Roles
   connection.query(roleTable, function (err, res) {
     if (err) throw err;
-    console.table(res);
   });
 
   let depArray = [];
@@ -313,6 +374,7 @@ const addRole = () => {
 
 //Delete an employee
 const deleteEmployee = () => {
+  console.clear();
   let empArray = [];
   const sql =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name as department, role.salary" +
@@ -323,7 +385,6 @@ const deleteEmployee = () => {
   connection.query(sql, function (err, res) {
     if (err) throw err;
     empArray = res;
-    console.table(res);
     let empNames = empArray.map(
       (user) => user.id + " " + user.first_name + " " + user.last_name
     );
@@ -351,6 +412,7 @@ const deleteEmployee = () => {
 
 //Delete a Department
 const deleteDepartment = () => {
+  console.clear();
   let depArray = [];
   const sql = "SELECT * FROM department";
 
@@ -385,6 +447,7 @@ const deleteDepartment = () => {
 
 //Delete a Role
 const deleteRole = () => {
+  console.clear();
   let roleArray = [];
   const sql =
     "SELECT role.id, role.title, role.department_id, department.name as department, role.salary" +
@@ -419,6 +482,7 @@ const deleteRole = () => {
 
 //Update an Employee's Role
 const updateEmployeeRole = () => {
+  console.clear();
   let empArray = [];
   let roleArray = [];
 
@@ -433,7 +497,6 @@ const updateEmployeeRole = () => {
   connection.query(sql, function (err, res) {
     if (err) throw err;
     empArray = res;
-    console.table(res);
     let empNames = empArray.map(
       (user) => user.id + " " + user.first_name + " " + user.last_name
     );
@@ -481,7 +544,6 @@ const updateEmployeeRole = () => {
                 " inner join department on role.department_id = department.id";
               connection.query(sql, [], function (err, res) {
                 if (err) throw err;
-                console.table(res);
                 console.log(`${nameSuccess} has been updated.`);
                 menu();
               });
@@ -494,6 +556,6 @@ const updateEmployeeRole = () => {
 //Connects SQL database
 connection.connect((err) => {
   if (err) throw err;
-  console.log(`Connected at ${connection.threadId}`);
+  // console.log(`Connected at ${connection.threadId}`);
   menu();
 });
