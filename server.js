@@ -93,6 +93,17 @@ const viewEmployees = () => {
     " inner join department on role.department_id = department.id";
   connection.query(sql, [], function (err, res) {
     if (err) throw err;
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log("CURRENT EMPLOYEES");
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
     console.log("\n");
     console.table(res);
     console.log(
@@ -114,6 +125,17 @@ const viewDepartments = () => {
   console.clear();
   connection.query("SELECT * FROM department", function (error, res) {
     if (error) throw err;
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log("CURRENT DEPARTMENTS");
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
     console.log("\n");
     console.table(res);
     console.log(
@@ -139,6 +161,17 @@ const viewRoles = () => {
     " inner join department ON (role.department_id = department.id)";
   connection.query(sql, [], function (err, res) {
     if (err) throw err;
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
+    console.log("CURRENT ROLES");
+    console.log(
+      chalk.white(
+        "-----------------------------------------------------------------------------"
+      )
+    );
     console.log("\n");
     console.table(res);
     console.log(
